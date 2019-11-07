@@ -122,5 +122,5 @@ for(i in 45:53) {
 
 # --- Finialize and write ---
 
-write.csv(dataset, file="Processed_data.csv")
+write.csv(dataset, file="Processed_data.csv", row.names = FALSE)
 
