@@ -44,7 +44,7 @@ getmode <- function(v) {
 
 #for testing only
 stats <- function(x) {
-  plot(x)
+  plot(x, ylim = c(0,100))
   print(mean(x, na.rm = TRUE))
   print(median(x, na.rm = TRUE))
   print(sd(x, na.rm = TRUE))
@@ -57,9 +57,11 @@ stats <- function(x) {
 #load dateset
 dataset <- read.table("5402_dataset.csv", sep=",", header = TRUE)
 
-#Remove inconsistant values for is_attack
-dataset[, 2][dataset[, 2] == 'N'] <- 0
-dataset[, 2][dataset[, 2] == 'Y'] <- 1
+#Remove inconsistant values for is_attack, maing it Nominal
+dataset[, 2][dataset[, 2] == 0] <- "N"
+dataset[, 2][dataset[, 2] == 1] <- "Y"
+
+
 
 #Attempt to fill NA values for data sett
 
@@ -67,6 +69,9 @@ dataset[, 2][dataset[, 2] == 'Y'] <- 1
 
 #The Pumps
 for(i in 3:21) {
+  #Make data nominal and not numeric
+  dataset[, i][dataset[, i] == 2] <- "On"
+  dataset[, i][dataset[, i] == 1] <- "Off"
   dataset[, i] <- basic_categorical_replacer(dataset[, i])
 }
 
@@ -76,7 +81,9 @@ for(i in 22:24) {
   #print(sum(is.na(dataset[, i])))
 }
 
-#UV Group
+#UV Group, make data nominal
+dataset[, 25][dataset[, 25] == 2] <- "On"
+dataset[, 25][dataset[, 25] == 1] <- "Off"
 dataset[, 25][is.na(dataset[, 25])] <- names(which.max(table(dataset[, 25])))
 
 #MV Group 2
@@ -122,5 +129,5 @@ for(i in 45:53) {
 
 # --- Finialize and write ---
 
-write.csv(dataset, file="Processed_data.csv", row.names = FALSE)
+write.csv(dataset, file="data_missing_filled.csv", row.names = FALSE)
 
