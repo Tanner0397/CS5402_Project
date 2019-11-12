@@ -1,6 +1,5 @@
 #libraries used
 library(dplyr)
-library(FactoMineR)
 library(outliers)
 library(ggplot2)
 
@@ -55,7 +54,7 @@ zeroVar <- function(x) {
 
 #returns a list of element indicies that only have one unique value, essentially having a variance of 0
 singleUnique <- function(x) {
-  as.numeric(which(apply(x, 2, function(x) {length(unique(x))}) == 1))
+  (which(apply(x, 2, function(x) {length(unique(x))}) == 1))
 }
 
 #A pairwise chi sqquared test, shows  the p.vvalue calculated
@@ -134,6 +133,11 @@ nearZeroVar <- function(x) {
   suppressWarnings(as.numeric(which(apply(x, 2, var.outliers.rm) < 0.0001)))
 }
 
+real_plot <- function(x) {
+  v = x[!x %in% boxplot.stats(x)$out]
+  plot(v)
+}
+
 #First we will attempt to fill in all the missing values in the entire df
 
 #load df
@@ -208,8 +212,11 @@ for(i in 45:53) {
 }
 
 #-------------------------------------------------- Done filling --------------------------------------------------
-df.filled <- df.filled
+df.filled <- df
 #-------------------------------------------------- Eliminate Attributes ------------------------------------------
+
+#Remove timestamps
+df$timestamps <- NULL
 
 #Remove attributes with zero variance
 df <- df[, -zeroVar(df)]
@@ -239,10 +246,6 @@ chi.stat.matrix <- pairwise.chi.square.test.stat(df.nominal)
 
 #Upon looking at the following matricies for the chi squared test, we have determined that the following attribues can be dropped
 #reasons will be commented
-
-#P101, P103, and P205 all have a strong evidence of depenedence. Drop P103 and P205
-df$P203 <- NULL
-df$P205 <- NULL
 
 #P301, MV304, has strong evidence to show that of dependence, MV304,
 df$MV304 <- NULL
@@ -298,9 +301,6 @@ df$FIT601 <- quantile_three_replacer(df$FIT601)
 
 #Replace DPIT with Low and High
 df$DPIT301 <- quantile_two_replacer(df$DPIT301)
-
-#Set AIT201 to categorical data
-df$AIT201 <- quantile_three_replacer(df$AIT201)
 
 #Write processed data
 write.csv(df, file="processed.csv", row.names = FALSE)
